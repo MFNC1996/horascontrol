@@ -1,4 +1,6 @@
 // Valida campos obligatorios y formato de correo antes de enviar el formulario (RNF4).
+// "reglas" es una lista de { input, error, email }: el campo a revisar, dónde mostrar
+// el mensaje de error, y si además de obligatorio debe tener forma de correo.
 function validarCampos(reglas) {
   let valido = true;
   for (const { input, error, email } of reglas) {
@@ -10,8 +12,8 @@ function validarCampos(reglas) {
       error.textContent = 'Ingresa un correo electrónico válido.';
       valido = false;
     } else {
-      error.textContent = '';
+      error.textContent = ''; // campo correcto: borra cualquier error anterior
     }
   }
-  return valido;
+  return valido; // true solo si todos los campos pasaron la validación
 }

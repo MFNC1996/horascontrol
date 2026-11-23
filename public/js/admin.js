@@ -1,5 +1,8 @@
+// Lógica del panel de administrador: listar colaboradores, crear cuentas y ver auditoría.
+
 const mensaje = document.getElementById('mensaje');
 
+// pide al servidor el resumen de horas de todos los colaboradores y arma la tabla
 async function cargarResumen() {
   const respuesta = await fetch('/api/admin/resumen');
   if (respuesta.status === 401) {
@@ -15,6 +18,7 @@ async function cargarResumen() {
   const tbody = document.getElementById('tablaResumen');
   tbody.innerHTML = '';
 
+  // arma una fila por colaborador, con su horas, su horario esperado (editable) y el botón activar/desactivar
   for (const c of colaboradores) {
     const fila = document.createElement('tr');
     fila.innerHTML = `
@@ -29,6 +33,7 @@ async function cargarResumen() {
     tbody.appendChild(fila);
   }
 
+  // botón activar/desactivar: invierte el estado actual y refresca la tabla y la auditoría
   document.querySelectorAll('.btnToggle').forEach((boton) => {
     boton.addEventListener('click', async () => {
       const nuevoEstado = boton.dataset.activo !== 'true';
@@ -42,6 +47,7 @@ async function cargarResumen() {
     });
   });
 
+  // al cambiar el número de horas esperadas, lo guarda de inmediato
   document.querySelectorAll('.inputHorario').forEach((input) => {
     input.addEventListener('change', async () => {
       await fetch(`/api/admin/colaboradores/${input.dataset.id}`, {
@@ -54,6 +60,7 @@ async function cargarResumen() {
   });
 }
 
+// pide las últimas acciones del administrador (crear/activar/desactivar cuentas) y las lista
 async function cargarAuditoria() {
   const respuesta = await fetch('/api/admin/auditoria');
   if (respuesta.status !== 200) return;
@@ -73,6 +80,7 @@ async function cargarAuditoria() {
   }
 }
 
+// envío del formulario "Nuevo colaborador"
 document.getElementById('formNuevo').addEventListener('submit', async (evento) => {
   evento.preventDefault();
   mensaje.textContent = '';
@@ -104,6 +112,7 @@ document.getElementById('formNuevo').addEventListener('submit', async (evento) =
     return;
   }
 
+  // cuenta creada: limpia el formulario y refresca la tabla y la auditoría
   document.getElementById('formNuevo').reset();
   await cargarResumen();
   await cargarAuditoria();
@@ -114,5 +123,6 @@ document.getElementById('btnSalir').addEventListener('click', async () => {
   window.location.href = 'login.html';
 });
 
+// carga inicial, apenas se abre la página
 cargarResumen();
 cargarAuditoria();

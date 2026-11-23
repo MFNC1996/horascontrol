@@ -6,7 +6,7 @@ const { requireAuth } = require('../middleware/auth');
 const { calcularPares, sumarHorasUltimos7Dias, inicioSemanaActual } = require('../utils/horas');
 
 const router = express.Router();
-router.use(requireAuth);
+router.use(requireAuth); // todas las rutas de aquí abajo exigen sesión iniciada
 
 // POST /api/marcaciones  — registra entrada o salida (RF2, RF3, RF10, RF12)
 router.post('/', async (req, res) => {
@@ -15,6 +15,8 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ error: 'Tipo debe ser "entrada" o "salida".' });
   }
 
+  // revisa cuál fue la última marcación de este colaborador, para no dejar marcar
+  // dos entradas seguidas ni una salida sin una entrada abierta antes (RF10)
   const ultima = await Marcacion.findOne({ colaboradorId: req.session.userId }).sort({ fechaHora: -1 });
 
   if (tipo === 'entrada' && ultima && ultima.tipo === 'entrada') {
@@ -28,13 +30,14 @@ router.post('/', async (req, res) => {
   const marcacion = await Marcacion.create({ colaboradorId: req.session.userId, tipo, fechaHora: new Date() });
 
   if (tipo === 'salida') {
-    // recalcula y cachea el resumen de la semana en curso
+    // se completó un par entrada/salida: recalcula el total de la semana y lo deja
+    // guardado en ResumenSemanal, para no tener que recalcularlo cada vez que se consulta
     const marcaciones = await Marcacion.find({ colaboradorId: req.session.userId });
     const totalHorasSemana = sumarHorasUltimos7Dias(calcularPares(marcaciones));
     await ResumenSemanal.findOneAndUpdate(
       { colaboradorId: req.session.userId, semanaInicio: inicioSemanaActual() },
       { totalHoras: Number(totalHorasSemana.toFixed(2)), generadoEn: new Date() },
-      { upsert: true }
+      { upsert: true } // si no existía un resumen para esta semana, lo crea
     );
   }
 
@@ -44,10 +47,11 @@ router.post('/', async (req, res) => {
 // GET /api/marcaciones/propias — historial y horas del colaborador (RF5)
 router.get('/propias', async (req, res) => {
   const marcaciones = await Marcacion.find({ colaboradorId: req.session.userId }).sort({ fechaHora: -1 }).limit(30);
-  const pares = calcularPares(marcaciones);
+  const pares = calcularPares(marcaciones); // agrupa entrada+salida y calcula las horas de cada jornada
   const totalHorasSemana = sumarHorasUltimos7Dias(pares);
 
-  // avisa si quedó una entrada abierta por más de 12 horas sin salida
+  // si quedó una entrada marcada hace más de 12 horas sin su salida, crea una notificación
+  // (solo si no hay otra sin leer todavía, para no repetir el mismo aviso)
   const ultima = marcaciones[0];
   if (ultima && ultima.tipo === 'entrada' && Date.now() - ultima.fechaHora.getTime() > 12 * 60 * 60 * 1000) {
     const yaExiste = await Notificacion.findOne({ colaboradorId: req.session.userId, leida: false });

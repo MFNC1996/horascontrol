@@ -8,7 +8,7 @@ const { requireAuth, requireAdmin } = require('../middleware/auth');
 const { calcularPares, sumarHorasUltimos7Dias } = require('../utils/horas');
 
 const router = express.Router();
-router.use(requireAuth, requireAdmin);
+router.use(requireAuth, requireAdmin); // todas estas rutas exigen sesión Y rol administrador (RF11)
 
 // GET /api/admin/colaboradores — listado (RF6)
 router.get('/colaboradores', async (req, res) => {
@@ -28,7 +28,7 @@ router.post('/colaboradores', async (req, res) => {
     return res.status(400).json({ error: 'Ya existe una cuenta con ese correo.' });
   }
 
-  const passwordHash = await bcrypt.hash(password, 10);
+  const passwordHash = await bcrypt.hash(password, 10); // cifra la contraseña antes de guardarla (RNF3)
   const colaborador = await Usuario.create({
     nombre,
     correo: correo.toLowerCase().trim(),
@@ -36,6 +36,8 @@ router.post('/colaboradores', async (req, res) => {
     rol: 'colaborador',
   });
 
+  // junto con la cuenta, se crea su horario esperado (40h por defecto) y queda
+  // registrado en la auditoría que el administrador creó esta cuenta
   await Horario.create({ colaboradorId: colaborador._id, horasEsperadasSemana: 40 });
   await Auditoria.create({
     adminId: req.session.userId,
@@ -53,12 +55,13 @@ router.patch('/colaboradores/:id', async (req, res) => {
   if (activo !== undefined) cambios.activo = Boolean(activo);
 
   const colaborador = await Usuario.findOneAndUpdate({ _id: req.params.id, rol: 'colaborador' }, cambios, {
-    new: true,
+    new: true, // que devuelva el documento ya actualizado, no el de antes del cambio
   });
   if (!colaborador) {
     return res.status(404).json({ error: 'Colaborador no encontrado.' });
   }
 
+  // si vino un horario nuevo, lo actualiza (o lo crea si por algo no existía)
   if (horasEsperadasSemana !== undefined) {
     await Horario.findOneAndUpdate(
       { colaboradorId: colaborador._id },
@@ -67,6 +70,7 @@ router.patch('/colaboradores/:id', async (req, res) => {
     );
   }
 
+  // si se activó o desactivó la cuenta, queda esa acción registrada en la auditoría
   if (activo !== undefined) {
     await Auditoria.create({
       adminId: req.session.userId,
@@ -82,6 +86,8 @@ router.patch('/colaboradores/:id', async (req, res) => {
 router.get('/resumen', async (req, res) => {
   const colaboradores = await Usuario.find({ rol: 'colaborador' }, '-passwordHash').sort({ nombre: 1 });
 
+  // por cada colaborador, calcula sus horas de la semana y busca su horario esperado;
+  // Promise.all lanza todas esas consultas en paralelo en vez de una por una
   const resumen = await Promise.all(
     colaboradores.map(async (c) => {
       const marcaciones = await Marcacion.find({ colaboradorId: c._id });
@@ -94,7 +100,7 @@ router.get('/resumen', async (req, res) => {
         correo: c.correo,
         activo: c.activo,
         totalHorasSemana: Number(totalHorasSemana.toFixed(2)),
-        horasEsperadasSemana: horario?.horasEsperadasSemana ?? 40,
+        horasEsperadasSemana: horario?.horasEsperadasSemana ?? 40, // 40 si todavía no tiene horario propio
       };
     })
   );
@@ -104,6 +110,7 @@ router.get('/resumen', async (req, res) => {
 
 // GET /api/admin/auditoria — últimas acciones administrativas registradas
 router.get('/auditoria', async (req, res) => {
+  // trae los últimos 20 registros, con el nombre del admin en vez de solo su id (populate)
   const registros = await Auditoria.find().sort({ fecha: -1 }).limit(20).populate('adminId', 'nombre');
   res.json(
     registros.map((r) => ({
