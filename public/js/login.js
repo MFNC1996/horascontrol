@@ -1,10 +1,19 @@
 document.getElementById('formLogin').addEventListener('submit', async (evento) => {
   evento.preventDefault();
 
-  const correo = document.getElementById('correo').value;
-  const password = document.getElementById('password').value;
+  const correoInput = document.getElementById('correo');
+  const passwordInput = document.getElementById('password');
   const mensaje = document.getElementById('mensaje');
   mensaje.textContent = '';
+
+  const valido = validarCampos([
+    { input: correoInput, error: document.getElementById('errorCorreo'), email: true },
+    { input: passwordInput, error: document.getElementById('errorPassword') },
+  ]);
+  if (!valido) return;
+
+  const correo = correoInput.value;
+  const password = passwordInput.value;
 
   try {
     const respuesta = await fetch('/api/auth/login', {

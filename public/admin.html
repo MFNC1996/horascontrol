@@ -18,10 +18,19 @@
 
     <div class="card">
       <h2>Nuevo colaborador</h2>
-      <form id="formNuevo" class="inline">
-        <input type="text" id="nombre" placeholder="Nombre" required />
-        <input type="email" id="correo" placeholder="Correo" required />
-        <input type="password" id="password" placeholder="Contraseña" required />
+      <form id="formNuevo" class="inline" novalidate>
+        <div class="campo-inline">
+          <input type="text" id="nombre" placeholder="Nombre" required />
+          <span class="error-campo" id="errorNombre"></span>
+        </div>
+        <div class="campo-inline">
+          <input type="email" id="correo" placeholder="Correo" required />
+          <span class="error-campo" id="errorCorreo"></span>
+        </div>
+        <div class="campo-inline">
+          <input type="password" id="password" placeholder="Contraseña" required />
+          <span class="error-campo" id="errorPassword"></span>
+        </div>
         <button type="submit">Crear</button>
       </form>
 
@@ -55,6 +64,7 @@
     </div>
   </div>
 
+  <script src="js/validacion.js"></script>
   <script src="js/admin.js"></script>
 </body>
 </html>

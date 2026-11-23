@@ -77,9 +77,20 @@ document.getElementById('formNuevo').addEventListener('submit', async (evento) =
   evento.preventDefault();
   mensaje.textContent = '';
 
-  const nombre = document.getElementById('nombre').value;
-  const correo = document.getElementById('correo').value;
-  const password = document.getElementById('password').value;
+  const nombreInput = document.getElementById('nombre');
+  const correoInput = document.getElementById('correo');
+  const passwordInput = document.getElementById('password');
+
+  const valido = validarCampos([
+    { input: nombreInput, error: document.getElementById('errorNombre') },
+    { input: correoInput, error: document.getElementById('errorCorreo'), email: true },
+    { input: passwordInput, error: document.getElementById('errorPassword') },
+  ]);
+  if (!valido) return;
+
+  const nombre = nombreInput.value;
+  const correo = correoInput.value;
+  const password = passwordInput.value;
 
   const respuesta = await fetch('/api/admin/colaboradores', {
     method: 'POST',
