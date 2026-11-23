@@ -10,6 +10,10 @@ const adminRoutes = require('./src/routes/admin');
 
 const app = express();
 
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1); // necesario para cookies "secure" detrás del proxy de Render
+}
+
 app.use(express.json());
 app.use(
   session({
