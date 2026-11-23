@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HorasControl — Administración</title>
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+</head>
+<body>
+  <div class="topbar">
+    <h1>HorasControl — Administración</h1>
+    <button id="btnSalir">Salir</button>
+  </div>
+
+  <div class="contenedor">
+    <p id="mensaje" class="mensaje-error"></p>
+
+    <div class="card">
+      <h2>Nuevo colaborador</h2>
+      <form id="formNuevo" class="inline">
+        <input type="text" id="nombre" placeholder="Nombre" required />
+        <input type="email" id="correo" placeholder="Correo" required />
+        <input type="password" id="password" placeholder="Contraseña" required />
+        <button type="submit">Crear</button>
+      </form>
+
+      <h2>Resumen de horas</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Colaborador</th>
+            <th>Últimos 7 días</th>
+            <th>Horario esperado</th>
+            <th>Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tablaResumen"></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Registro de auditoría</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Administrador</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody id="tablaAuditoria"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+:root {
+  --color-primario: #0000cc;
+  --color-primario-oscuro: #000080;
+  --color-exito: #2ecc71;
+  --color-error: #c0392b;
+  --color-advertencia: #e2a01f;
+  --color-fondo: #f5f6fa;
+  --color-texto: #1a1a1a;
+  --color-texto-suave: #555555;
+  --color-borde: #d0d5dd;
+
+  --espacio-xs: 0.4rem;
+  --espacio-sm: 0.8rem;
+  --espacio-md: 1.2rem;
+  --espacio-lg: 2rem;
+
+  --radio-borde: 8px;
+  --fuente: Arial, Helvetica, sans-serif;
+}

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HorasControl — Mi panel</title>
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+</head>
+<body>
+  <div class="topbar">
+    <h1>HorasControl</h1>
+    <button id="btnSalir">Salir</button>
+  </div>
+
+  <div class="contenedor">
+    <p id="mensaje" class="mensaje-error"></p>
+    <div id="notificaciones"></div>
+
+    <button id="btnMarcar" class="boton-marcar">Marcar entrada / salida</button>
+
+    <div class="card">
+      <p class="resumen">Horas trabajadas últimos 7 días: <strong id="totalHoras">—</strong></p>
+
+      <h2>Historial reciente</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Entrada</th>
+            <th>Salida</th>
+            <th>Horas</th>
+          </tr>
+        </thead>
+        <tbody id="tablaHistorial"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="js/panel.js"></script>
+</body>
+</html>
