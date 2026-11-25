@@ -40,8 +40,7 @@ primera visita después de eso puede tardar unos 30-50 segundos en responder.
 - `src/seed.js` — crea el primer usuario administrador (`npm run seed`).
 - `public/` — frontend (HTML, CSS y JS planos, sin build ni frameworks).
 
-El código fuente está comentado en español explicando qué hace cada función, pensado para
-poder repasarlo rápido antes de una defensa oral.
+El código fuente está comentado en español explicando qué hace cada función
 
 ## Variables de entorno
 
