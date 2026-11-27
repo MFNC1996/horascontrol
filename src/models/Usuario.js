@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 
-// una cuenta del sistema: puede ser un colaborador o el administrador.
+// Esto es un "modelo": define la forma que tiene cada documento de una colección en
+// MongoDB (qué campos tiene, de qué tipo, cuáles son obligatorios). Esta en particular
+// es una cuenta del sistema: puede ser un colaborador o el administrador.
 const usuarioSchema = new mongoose.Schema({
   nombre: { type: String, required: true },
   correo: { type: String, required: true, unique: true, lowercase: true, trim: true }, // sirve para iniciar sesión, no puede repetirse

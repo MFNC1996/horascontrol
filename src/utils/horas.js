@@ -1,5 +1,8 @@
-// Empareja marcaciones de entrada/salida (ya vienen alternadas gracias a la
-// validación del RF10) y calcula cuántas horas duró cada jornada.
+// Esto es un "util": funciones de apoyo con cálculos que usan varias rutas,
+// para no repetir la misma lógica en cada una.
+
+// Empareja marcaciones de entrada/salida (ya vienen alternadas porque la ruta
+// de marcaciones nunca deja guardar dos entradas seguidas) y calcula cuántas horas duró cada jornada.
 function calcularPares(marcaciones) {
   const ordenadas = [...marcaciones].sort((a, b) => a.fechaHora - b.fechaHora);
   const pares = [];
@@ -17,7 +20,7 @@ function calcularPares(marcaciones) {
   return pares.reverse(); // más reciente primero
 }
 
-// suma las horas solo de los pares cuya entrada fue en los últimos 7 días (RF5/RF7)
+// suma las horas solo de los pares cuya entrada fue en los últimos 7 días
 function sumarHorasUltimos7Dias(pares) {
   const haceUnaSemana = Date.now() - 7 * 24 * 60 * 60 * 1000;
   return pares

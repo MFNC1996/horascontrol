@@ -1,3 +1,5 @@
+// Ruta: agrupa todo lo que puede hacer el administrador (/api/admin/...). Cada función
+// de aquí abajo corresponde a una URL y un verbo HTTP (GET, POST, PATCH) específicos.
 const express = require('express');
 const bcrypt = require('bcrypt');
 const Usuario = require('../models/Usuario');
@@ -8,15 +10,15 @@ const { requireAuth, requireAdmin } = require('../middleware/auth');
 const { calcularPares, sumarHorasUltimos7Dias } = require('../utils/horas');
 
 const router = express.Router();
-router.use(requireAuth, requireAdmin); // todas estas rutas exigen sesión Y rol administrador (RF11)
+router.use(requireAuth, requireAdmin); // todas estas rutas exigen sesión Y rol administrador
 
-// GET /api/admin/colaboradores — listado (RF6)
+// GET /api/admin/colaboradores — listado
 router.get('/colaboradores', async (req, res) => {
   const colaboradores = await Usuario.find({ rol: 'colaborador' }, '-passwordHash').sort({ nombre: 1 });
   res.json(colaboradores);
 });
 
-// POST /api/admin/colaboradores — crear cuenta (RF8)
+// POST /api/admin/colaboradores — crear cuenta
 router.post('/colaboradores', async (req, res) => {
   const { nombre, correo, password } = req.body;
   if (!nombre || !correo || !password) {
@@ -28,7 +30,7 @@ router.post('/colaboradores', async (req, res) => {
     return res.status(400).json({ error: 'Ya existe una cuenta con ese correo.' });
   }
 
-  const passwordHash = await bcrypt.hash(password, 10); // cifra la contraseña antes de guardarla (RNF3)
+  const passwordHash = await bcrypt.hash(password, 10); // cifra la contraseña antes de guardarla, nunca en texto plano
   const colaborador = await Usuario.create({
     nombre,
     correo: correo.toLowerCase().trim(),
@@ -48,7 +50,7 @@ router.post('/colaboradores', async (req, res) => {
   res.status(201).json({ id: colaborador._id, nombre: colaborador.nombre, correo: colaborador.correo });
 });
 
-// PATCH /api/admin/colaboradores/:id — activar/desactivar cuenta o ajustar horario esperado (RF9)
+// PATCH /api/admin/colaboradores/:id — activar/desactivar cuenta o ajustar horario esperado
 router.patch('/colaboradores/:id', async (req, res) => {
   const { activo, horasEsperadasSemana } = req.body;
   const cambios = {};
@@ -82,7 +84,7 @@ router.patch('/colaboradores/:id', async (req, res) => {
   res.json({ id: colaborador._id, activo: colaborador.activo });
 });
 
-// GET /api/admin/resumen — horas y horario esperado de todos los colaboradores (RF7)
+// GET /api/admin/resumen — horas y horario esperado de todos los colaboradores
 router.get('/resumen', async (req, res) => {
   const colaboradores = await Usuario.find({ rol: 'colaborador' }, '-passwordHash').sort({ nombre: 1 });
 

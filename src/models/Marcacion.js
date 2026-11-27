@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const marcacionSchema = new mongoose.Schema({
   colaboradorId: { type: mongoose.Schema.Types.ObjectId, ref: 'Usuario', required: true, index: true }, // quién marcó
   tipo: { type: String, enum: ['entrada', 'salida'], required: true },
-  fechaHora: { type: Date, default: Date.now }, // la pone el servidor, el usuario no la puede editar (RF12)
+  fechaHora: { type: Date, default: Date.now }, // la pone el servidor, el usuario no la puede editar
   createdAt: { type: Date, default: Date.now },
 });
 

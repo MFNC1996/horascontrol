@@ -1,3 +1,5 @@
+// Esta es una "ruta": define qué hace el servidor cuando llega una petición a una URL
+// específica de /api/auth/... (ej. qué pasa cuando alguien manda un POST a /login).
 const express = require('express');
 const bcrypt = require('bcrypt');
 const Usuario = require('../models/Usuario');

@@ -1,3 +1,4 @@
+// Ruta: todo lo relacionado a marcar entrada/salida y ver el propio historial (/api/marcaciones/...).
 const express = require('express');
 const Marcacion = require('../models/Marcacion');
 const Notificacion = require('../models/Notificacion');
@@ -8,7 +9,7 @@ const { calcularPares, sumarHorasUltimos7Dias, inicioSemanaActual } = require('.
 const router = express.Router();
 router.use(requireAuth); // todas las rutas de aquí abajo exigen sesión iniciada
 
-// POST /api/marcaciones  — registra entrada o salida (RF2, RF3, RF10, RF12)
+// POST /api/marcaciones  — registra entrada o salida
 router.post('/', async (req, res) => {
   const { tipo } = req.body;
   if (tipo !== 'entrada' && tipo !== 'salida') {
@@ -16,7 +17,7 @@ router.post('/', async (req, res) => {
   }
 
   // revisa cuál fue la última marcación de este colaborador, para no dejar marcar
-  // dos entradas seguidas ni una salida sin una entrada abierta antes (RF10)
+  // dos entradas seguidas ni una salida sin una entrada abierta antes
   const ultima = await Marcacion.findOne({ colaboradorId: req.session.userId }).sort({ fechaHora: -1 });
 
   if (tipo === 'entrada' && ultima && ultima.tipo === 'entrada') {
@@ -26,7 +27,7 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ error: 'No hay una entrada abierta para marcar la salida.' });
   }
 
-  // la hora la pone el servidor, nunca el cliente (RF12)
+  // la hora la pone el servidor, nunca el cliente
   const marcacion = await Marcacion.create({ colaboradorId: req.session.userId, tipo, fechaHora: new Date() });
 
   if (tipo === 'salida') {
@@ -44,7 +45,7 @@ router.post('/', async (req, res) => {
   res.status(201).json({ tipo: marcacion.tipo, fechaHora: marcacion.fechaHora });
 });
 
-// GET /api/marcaciones/propias — historial y horas del colaborador (RF5)
+// GET /api/marcaciones/propias — historial y horas del colaborador
 router.get('/propias', async (req, res) => {
   const marcaciones = await Marcacion.find({ colaboradorId: req.session.userId }).sort({ fechaHora: -1 }).limit(30);
   const pares = calcularPares(marcaciones); // agrupa entrada+salida y calcula las horas de cada jornada
@@ -81,6 +82,15 @@ router.get('/notificaciones', async (req, res) => {
 // PATCH /api/marcaciones/notificaciones/:id — marcar como leída
 router.patch('/notificaciones/:id', async (req, res) => {
   await Notificacion.findOneAndUpdate({ _id: req.params.id, colaboradorId: req.session.userId }, { leida: true });
+  res.json({ ok: true });
+});
+
+// DELETE /api/marcaciones/notificaciones/:id — elimina la notificación por completo
+router.delete('/notificaciones/:id', async (req, res) => {
+  const borrada = await Notificacion.findOneAndDelete({ _id: req.params.id, colaboradorId: req.session.userId });
+  if (!borrada) {
+    return res.status(404).json({ error: 'Notificación no encontrada.' });
+  }
   res.json({ ok: true });
 });
 

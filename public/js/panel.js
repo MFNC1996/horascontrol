@@ -48,14 +48,22 @@ async function cargarNotificaciones() {
   for (const n of notificaciones) {
     const aviso = document.createElement('div');
     aviso.className = 'aviso';
-    aviso.innerHTML = `<span>${n.mensaje}</span><button data-id="${n.id}" class="btnCerrarAviso">Entendido</button>`;
+    aviso.innerHTML = `<span>${n.mensaje}</span><button data-id="${n.id}" class="btnCerrarAviso">Entendido</button><button data-id="${n.id}" class="btnEliminarAviso">Eliminar</button>`;
     contenedor.appendChild(aviso);
   }
 
-  // cada botón "Entendido" marca esa notificación como leída y vuelve a cargar la lista
+  // "Entendido" marca esa notificación como leída (se deja de mostrar, pero queda guardada)
   document.querySelectorAll('.btnCerrarAviso').forEach((boton) => {
     boton.addEventListener('click', async () => {
       await fetch(`/api/marcaciones/notificaciones/${boton.dataset.id}`, { method: 'PATCH' });
+      await cargarNotificaciones();
+    });
+  });
+
+  // "Eliminar" borra la notificación por completo de la base de datos
+  document.querySelectorAll('.btnEliminarAviso').forEach((boton) => {
+    boton.addEventListener('click', async () => {
+      await fetch(`/api/marcaciones/notificaciones/${boton.dataset.id}`, { method: 'DELETE' });
       await cargarNotificaciones();
     });
   });

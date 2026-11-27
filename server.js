@@ -24,11 +24,11 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    rolling: true, // renueva el tiempo de expiración en cada petición (sesión por inactividad, RNF6)
+    rolling: true, // cada petición reinicia el contador: la sesión expira por inactividad, no por tiempo fijo desde el login
     cookie: {
       httpOnly: true, // el navegador no deja leer la cookie desde JavaScript (más seguro)
       secure: process.env.NODE_ENV === 'production', // solo viaja por HTTPS en producción
-      maxAge: 1000 * 60 * 15, // la sesión expira a los 15 minutos de inactividad (RNF6)
+      maxAge: 1000 * 60 * 15, // la sesión expira a los 15 minutos de inactividad
     },
   })
 );
